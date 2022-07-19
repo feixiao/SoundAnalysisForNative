@@ -83,11 +83,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         mMediaPlayer = new MediaPlayer();
         visualizer = new Visualizer(mMediaPlayer.getAudioSessionId());
+
+        // 设置可视化数据的数据大小
         visualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
         visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
+
+            /**
+             * onWaveFormDataCapture返回的是声音的波形数据。
+             * waveform 是波形采样的字节数组，它包含一系列的 8 位（无符号）的 PCM 单声道样本
+             * */
             @Override
             public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
-                Log.i("xiaozhu", "waveform" + waveform.length);
+                Log.i("[onWaveFormDataCapture] ", " waveform " + waveform.length);
 
                 long v = 0;
                 for (int i = 0; i < waveform.length; i++) {
@@ -100,6 +107,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
 
+
+            /**
+             * onFftDataCapture返回的是经过傅里叶变换处理后的音频数据
+             * fft 是经过 FFT 转换后频率采样的字节数组，频率范围为 0（直流）到采样值的一半！返回的数据如上图所示：n 为采样值Rf 和 lf 分别对应第 k 个频率的实部和虚部；
+             * 如果 Fs 为采样频率，那么第 k 个频率为(k*Fs)/(n/2)；换句话说：频率横坐标的取值范围为[0, Fs]
+             * */
             @Override
             public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
                 if (mMediaPlayer == null || !mMediaPlayer.isPlaying()) {
@@ -117,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
                 currentFrequency = max * samplingRate / fft.length;
-                Log.i("xiaozhu", "currentFrequency=" + currentFrequency);
+                Log.i("xiaozhu", "[onFftDataCapture] currentFrequency=" + currentFrequency);
                 tv_currentFrequency.setText(getString(R.string.frequency)+":"+currentFrequency);
                 if (currentFrequency<0){
                     return;
@@ -127,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
             }
-        }, Visualizer.getMaxCaptureRate() / 2, true, true);
+        }, Visualizer.getMaxCaptureRate() / 2  , true, true);
 
         visualizer.setEnabled(true);
 
