@@ -131,9 +131,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 }
 
+                // 获取当前的Frequency
                 currentFrequency = max * samplingRate / fft.length;
+
                 Log.i("xiaozhu", "[onFftDataCapture] currentFrequency=" + currentFrequency);
-                tv_currentFrequency.setText(getString(R.string.frequency)+":"+currentFrequency);
+                tv_currentFrequency.setText( getString(R.string.frequency)+" : "+currentFrequency);
                 if (currentFrequency<0){
                     return;
                 }
