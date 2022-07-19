@@ -112,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
              * onFftDataCapture返回的是经过傅里叶变换处理后的音频数据
              * fft 是经过 FFT 转换后频率采样的字节数组，频率范围为 0（直流）到采样值的一半！返回的数据如上图所示：n 为采样值Rf 和 lf 分别对应第 k 个频率的实部和虚部；
              * 如果 Fs 为采样频率，那么第 k 个频率为(k*Fs)/(n/2)；换句话说：频率横坐标的取值范围为[0, Fs]
+             *
+             * 数据排列: https://developer.android.com/reference/android/media/audiofx/Visualizer#getFft(byte[])
              * */
             @Override
             public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
