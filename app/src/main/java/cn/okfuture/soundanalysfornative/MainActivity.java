@@ -121,14 +121,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
 
+                // magnitudes 振幅
+                // 获取最多的振幅
                 float[] magnitudes = new float[fft.length / 2];
                 int max = 0;
                 for (int i = 0; i < magnitudes.length; i++) {
+
+                    // Math.hypot(double x, double y) 返回 sqrt(x2 +y2) 冇有中間溢或下溢
                     magnitudes[i] = (float) Math.hypot(fft[2 * i], fft[2 * i + 1]);
                     if (magnitudes[max] < magnitudes[i]) {
                         max = i;
                     }
-
                 }
 
                 // 获取当前的Frequency
