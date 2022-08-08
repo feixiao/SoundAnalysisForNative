@@ -116,6 +116,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
 
+            /**
+             * Convert square of magnitude to decibels
+             * @param squareMag square of magnitude
+             * @return decibels
+             */
+            public  float magnitudeToDb(float squareMag) {
+                if (squareMag == 0)
+                    return 0;
+                return (float) (20 * Math.log10(squareMag));
+            }
 
             /**
              * onFftDataCapture返回的是经过傅里叶变换处理后的音频数据
@@ -153,7 +163,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(Tags,"phases  2 : " + String.valueOf(phases[2]));
                 Log.i(Tags,"phases  3 : " + String.valueOf(phases[3]));
 
-                Log.i(Tags,"magnitudes : " + String.valueOf(magnitudes[max]));
 
                 // 获取当前的Frequency
                 currentFrequency = max * samplingRate / fft.length;
@@ -163,6 +172,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (currentFrequency<0){
                     return;
                 }
+
+                float db = magnitudeToDb(magnitudes[max]);
+                Log.i(Tags,"magnitudes : " + String.valueOf(magnitudes[max]) + " db : " + String.valueOf(db));
+
 
                 ll_main.setBackgroundColor(ColorUtils.argb((currentVolume - 30) * 0.02f, Color.red(ColorUtils.COLOR_LIST_140[currentFrequency % 140]), Color.green(ColorUtils.COLOR_LIST_140[currentFrequency % 140]), Color.blue(ColorUtils.COLOR_LIST_140[currentFrequency % 140])));
 
