@@ -1,6 +1,7 @@
 package cn.okfuture.soundanalysfornative;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 当前频率
      */
     private int currentFrequency;
+    private String Tags = "test";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,10 +94,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
              * onWaveFormDataCapture返回的是声音的波形数据。
              * waveform 是波形采样的字节数组，它包含一系列的 8 位（无符号）的 PCM 单声道样本
              * */
+            @SuppressLint("LongLogTag")
             @Override
             public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
-                Log.i("[onWaveFormDataCapture] ", " waveform " + waveform.length);
 
+                // intensity 强度
+                float intensity = ((float) waveform[0] + 128f) / 256;
+
+
+                // volume 音量
                 long v = 0;
                 for (int i = 0; i < waveform.length; i++) {
                     v += Math.pow(waveform[i], 2);
@@ -104,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 double volume = 10 * Math.log10(v / (double) waveform.length);
 
                 currentVolume = (int) volume;
+
+                Log.d("onWaveFormDataCapture intensity : ", String.valueOf(intensity) + " volume : " + String.valueOf(volume));
 
             }
 
@@ -123,16 +132,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 // magnitudes 振幅
                 // 获取最多的振幅
-                float[] magnitudes = new float[fft.length / 2];
+                int n = fft.length;
+                float[] magnitudes = new float[n / 2 + 1];
+                float[] phases = new float[n / 2 + 1];
+                magnitudes[0] = (float)Math.abs(fft[0]);      // DC
+                magnitudes[n / 2] = (float)Math.abs(fft[1]);  // Nyquist
+                phases[0] = phases[n / 2] = 0;
                 int max = 0;
-                for (int i = 0; i < magnitudes.length; i++) {
-
-                    // Math.hypot(double x, double y) 返回 sqrt(x2 +y2) 冇有中間溢或下溢
-                    magnitudes[i] = (float) Math.hypot(fft[2 * i], fft[2 * i + 1]);
-                    if (magnitudes[max] < magnitudes[i]) {
-                        max = i;
+                for (int k = 1; k < n / 2; k++) {
+                    int i = k * 2;
+                    magnitudes[k] = (float)Math.hypot(fft[i], fft[i + 1]);
+                    if (magnitudes[max] < magnitudes[k]) {
+                        max = k;
                     }
+                    phases[k] = (float)Math.atan2(fft[i + 1], fft[i]);
                 }
+
+                Log.i(Tags,"phases  0 : " + String.valueOf(phases[0]));
+                Log.i(Tags,"phases  1 : " + String.valueOf(phases[1]));
+                Log.i(Tags,"phases  2 : " + String.valueOf(phases[2]));
+                Log.i(Tags,"phases  3 : " + String.valueOf(phases[3]));
+
+                Log.i(Tags,"magnitudes : " + String.valueOf(magnitudes[max]));
 
                 // 获取当前的Frequency
                 currentFrequency = max * samplingRate / fft.length;
